@@ -1,0 +1,216 @@
+{% extends "feed/layout.html" %} {% load static %} {% block searchform %}
+{% comment %} <form class="form-inline my-2 my-lg-0 ml-5" action="{% url 'search' %}" method="get">
+  <input name="p" type="text" placeholder="Search posts.." />
+  <button class="btn btn-success my-2 my-sm-0 ml-4" type="submit">
+    Search
+  </button> {% endcomment %}
+</form>
+{% endblock searchform %}
+
+{% block content %}
+<div class="row mt-2 mb-2">
+  <div class="col-12">
+    <h1>Invoice Number - {{invoice.invoice_num}}</h1>
+  </div>
+</div>
+  <style>
+    input {
+      border: none;
+    }
+
+    .billedto input, .grand_total input{
+      font-weight: bold;
+    }
+
+    .invoice_detail input {
+      font-weight: bold;
+    }
+
+    .invoice_detail input:focus {
+      outline: none;
+    }
+
+    .cust_details span {
+      display: inline-grid;
+      width: 80%;
+    }
+    select{
+      width: 100%;
+      height: 18px;
+      border: none;
+      -webkit-appearance: none;
+    }
+  </style>
+  <div id="invoice" class="invoice">
+    <table style="border-collapse: collapse; width: 100%; height: 36px;" border="1">
+      <tbody>
+        <tr style="height: 18px;">
+          <td colspan="12" style="border-right: none;">GSTIN : 22AEJFS4748E1Z0</td>
+          <td colspan="8" style="border-left: none; border-right: none;"><b>TAX INVOICE</b></td>
+          <td colspan="6" style="border-left: none;text-align: right;">Original Copy</td>
+        </tr>
+        <tr style="height: 18px;">
+          <td colspan="13">
+            <b>M/s SATGURU INDUSTRIES</b><br>
+            SITE - BANDHAKHAR, DIPKA ROAD, KORBA (C.G)<br>
+            OFFICE - PLOT NO. 181, TRANSPORT NAGAR, KORBA (C.G.) - 495677<br>
+            Mob. - 8718811901, 8718811902
+          </td>
+          <td class="cust_details" colspan="13">
+            <b>Billed to : </b><span class="billedto">{{ invoice.cust_name }}</span><br>
+            <b>Address : </b> <span>{{ invoice.cust_add }}</span><br>
+            <b>Place : </b> <span>{{ invoice.cust_place }}</span><br>
+            <b>GSTIN : </b> <span>{{ invoice.cust_gstin }}</span>
+          </td>
+        </tr>
+      </tbody>
+      <tbody>
+        <tr class="invoice_detail" style="height: 18px;">
+          <td colspan="8"><b>Invoice No. : {{ invoice.invoice_num }}</b> </td>
+          <td colspan="8"><b>Dated : {{ invoice.date }}</b></td>
+          <td colspan="10"><b>Place of supply : Chhattisgarh (22)</b></td>
+        </tr>
+      </tbody>
+      <script>
+        var inputElement = document.getElementById("id_invoice_num");
+        if (inputElement) {
+          inputElement.readOnly = true;
+        }
+      </script>
+      <tbody style="table-layout: fixed;">
+        <tr style="height: 18px;">
+          <td>S.N.</td>
+          <td colspan="6">Goods / Services supplied</td>
+          <td colspan="2">HSN/SAC</td>
+          <td colspan="2">Qty</td>
+          <td colspan="2">Unit</td>
+          <td colspan="2">List Price</td>
+          <td colspan="2">CGST (%)</td>
+          <td colspan="2">CGST Amt.</td>
+          <td colspan="2">SGST (%)</td>
+          <td colspan="2">SGST Amt.</td>
+          <td colspan="3">Amount(&#8377;)</td>
+        </tr>
+      </tbody>
+      <tbody class="inventory" style="height: 200px;">
+        {% for item in invoice_items %}
+        <tr>
+          <td>{{forloop.counter}}</td>
+          <td colspan="6"><span>{{ item.product }}</span></td>
+          <td colspan="2"><span name="hsn">{{ item.product.hsn }}</span></td>
+          <td colspan="2"><span>{{item.quantity}}</span></td>
+          <td colspan="2"><span name="unit">{{ item.product.unit }}</span></td>
+          <td colspan="2"><span data-prefix>&#8377; </span><span name="rate">{{ item.product.rate }}</span></td>
+          <td colspan="2"><span name="cgst">{{ item.product.cgst }}</span> %</td>
+          <td colspan="2"><span data-prefix>&#8377; </span><span>150.00</span></td>
+          <td colspan="2"><span name="sgst">{{ item.product.sgst }}</span> %</td>
+          <td colspan="2"><span data-prefix>&#8377; </span><span>150.00</span></td>
+          <td colspan="3"><span data-prefix>&#8377; </span><span>{{item.total}}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tbody>
+        <tr>
+          <td colspan="21">&nbsp;</td>
+          <td colspan="2">Freight Charges</td>
+          <td colspan="3">&#8377; <span id="extra">{{ invoice.freight_charges }}</span></td>
+        </tr>
+      </tbody>
+      <tbody class="balance">
+        <tr style="height: 18px;">
+          <td colspan="3"><b>Tax Rate</b></td>
+          <td colspan="3"><b>Taxable Amt.</b></td>
+          <td colspan="3"><b>CGST Amt.</b></td>
+          <td colspan="3"><b>SGST Amt.</b></td>
+          <td colspan="3"><b>Total Tax</b></td>
+          <td colspan="8" style="border-bottom: none; width: 37%;text-align: right;"><b>Grand Total</b></td>
+          <td colspan="3" style="text-align: left;"><b>&#8377; <span class="grand_total">{{ invoice.grand_total }}</span></b></td>
+        </tr>
+            <tr style="height: 18px;">
+              <td colspan="3">12%</td>
+              <td colspan="3">&#8377; <span id="taxable">5600</span></td>
+              <td colspan="3">&#8377; <span id="tot_cgst">336</span></td>
+              <td colspan="3">&#8377; <span id="tot_sgst">336</span></td>
+              <td colspan="3">&#8377; <span id="tot_tax">672</span></td>
+              <td colspan="11" style="border-bottom: none; border-top: none;">&nbsp;</td>
+            </tr>
+            <tr>
+              <td colspan="26" style="border-top: none; border-bottom: none;">&nbsp;</td>
+            </tr>
+            <tr>
+              <td colspan="26" style="border-top: none;"><b><span id="total-desc">Rupees Eighteen thousand</span></b></td>
+            </tr>
+            <tr style="height: 60px;">
+              <td colspan="13" style="text-align: bottom;"><br>Receiver's Signature</td>
+              <td colspan="13" style="text-align: bottom; text-align: right;"><br>Authorised Signatory</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="row m-2">
+        <div class="container" style="text-align:right;">
+          <button class="btn btn-primary" id="download"> print pdf</button>
+        </div>
+      </div>
+      {% if form.errors %}
+    <div class="alert alert-danger">
+      <strong>Error:</strong>
+      <ul>
+        {% for field, errors in form.errors.items %}
+          {% for error in errors %}
+            <li>{{ field }}: {{ error }}</li>
+          {% endfor %}
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+</div>
+
+<script src="{% static 'details.js' %}"></script>
+  {% endblock content %}
+
+  {% block jsfiles %}
+  <script>
+    
+  </script>
+  <script>
+    addrows();
+  function addrows(){
+    var selectElements = document.getElementsByName("products");
+    for (var i = 0; i < selectElements.length; i++) {
+      var selectElement = selectElements[i];
+      selectElement.removeAttribute("multiple");
+    
+
+        selectElement.addEventListener("change", function() {
+          var selectedHSNElement = selectElement.closest("tr").querySelector("[name='hsn']");
+          var selectedUnitElement = selectElement.closest("tr").querySelector("[name='unit']");
+          var selectedRateElement = selectElement.closest("tr").querySelector("[name='rate']");
+          var selectedCGSTElement = selectElement.closest("tr").querySelector("[name='cgst']");
+          var selectedSGSTElement = selectElement.closest("tr").querySelector("[name='sgst']");
+          var selectedProduct = selectElement.value; // Get the selected product value
+          {% for product in posts %}
+            if({{forloop.counter}} == selectedProduct){
+              var hsnValue = {{product.hsn}};
+              var unitValue = '{{product.unit}}';
+              var rateValue = {{product.rate}};
+              var cgstValue = {{product.cgst}};
+              var sgstValue = {{product.sgst}};
+              if (selectedProduct) {
+                selectedHSNElement.innerText = hsnValue;
+                selectedUnitElement.innerText = unitValue;
+                selectedRateElement.innerText = rateValue.toFixed(2);
+                selectedCGSTElement.innerText = cgstValue.toFixed(2);
+                selectedSGSTElement.innerText = sgstValue.toFixed(2);
+              }
+            }
+          {% endfor %}
+        });
+      }
+  }
+  document.addEventListener('keydown', addrows);
+	document.addEventListener('keyup', addrows);
+	document.addEventListener('mousewheel', addrows);
+	document.addEventListener('click', addrows);
+  </script>
+  {% endblock jsfiles %}

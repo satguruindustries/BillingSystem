@@ -1,0 +1,271 @@
+{% extends "feed/layout.html" %} {% load static %} {% block searchform %}
+{% comment %} <form class="form-inline my-2 my-lg-0 ml-5" action="{% url 'search' %}" method="get">
+  <input name="p" type="text" placeholder="Search posts.." />
+  <button class="btn btn-success my-2 my-sm-0 ml-4" type="submit">
+    Search
+  </button> 
+</form>{% endcomment %}
+{% endblock searchform %}
+{% block homeactive %}active{% endblock homeactive %}
+{% block content %}
+
+<div class="row mt-2 mb-2">
+  <div class="col-12">
+    <h1>Billing</h1>
+  </div>
+</div>
+    
+<form class="form" method="POST" action="{% url 'save_invoice' %}" enctype="multipart/form-data">
+  {% csrf_token %}
+  <style>
+    input {
+      border: none;
+    }
+
+    .billedto input, .grand_total input{
+      font-weight: bold;
+    }
+
+    .invoice_detail input {
+      font-weight: bold;
+    }
+
+    .invoice_detail input:focus {
+      outline: none;
+    }
+
+    .cust_details span {
+      display: inline-grid;
+      width: 80%;
+    }
+    select{
+      width: 100%;
+      height: 18px;
+      border: none;
+      -webkit-appearance: none;
+    }
+    .item_total input{
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none; 
+      pointer-events: none;
+    }
+  </style>
+  <div id="invoice" class="invoice">
+    <table style="border-collapse: collapse; width: 100%; height: 36px;" border="1">
+      <tbody>
+        <tr style="height: 18px;">
+          <td colspan="12" style="border-right: none;">GSTIN : 22AEJFS4748E1Z0</td>
+          <td colspan="8" style="border-left: none; border-right: none;"><b>TAX INVOICE</b></td>
+          <td colspan="6" style="border-left: none;text-align: right;">Original Copy</td>
+        </tr>
+        <tr style="height: 18px;">
+          <td colspan="13">
+            <b>M/s SATGURU INDUSTRIES</b><br>
+            SITE - BANDHAKHAR, DIPKA PALI ROAD, KORBA (C.G)<br>
+            OFFICE - PLOT NO. 181, TRANSPORT NAGAR, KORBA (C.G.) - 495677<br>
+            Mob. - 8718811901, 8718811902
+          </td>
+          <td class="cust_details" colspan="13">
+            <b>Billed to : </b><span class="billedto">{{ form.cust_name }}</span><br>
+            <b>Address : </b> <span>{{ form.cust_add }}</span><br>
+            <b>Place : </b> <span>{{ form.cust_place }}</span><br>
+            <b>GSTIN : </b> <span>{{ form.cust_gstin }}</span>
+          </td>
+        </tr>
+      </tbody>
+      <tbody>
+        <tr class="invoice_detail" style="height: 18px;">
+          <td colspan="8"><b>Invoice No. :</b> {{ form.invoice_num }}</td>
+          <td colspan="8"><b>Dated :</b> <span>{{ form.date }}</span></td>
+          <td colspan="6"><b>Place of supply : Chhattisgarh (22)</b></td>
+          <td colspan="4"><div class="btn btn-primary add">+ Add item</div></td>
+        </tr>
+      </tbody>
+      <script>
+        document.getElementById("id_invoice_num").value = {{ invoice_num }};
+        var inputElement = document.getElementById("id_invoice_num");
+        if (inputElement) {
+          inputElement.readOnly = true;
+        }
+      </script>
+      <tbody style="table-layout: fixed;">
+        <tr style="height: 18px;">
+          <td>S.N.</td>
+          <td colspan="6">Goods / Services supplied</td>
+          <td colspan="2">HSN/SAC</td>
+          <td colspan="2">Qty</td>
+          <td colspan="2">Unit</td>
+          <td colspan="2">List Price</td>
+          <td colspan="2">CGST (%)</td>
+          <td colspan="2">CGST Amt.</td>
+          <td colspan="2">SGST (%)</td>
+          <td colspan="2">SGST Amt.</td>
+          <td colspan="3">Amount(&#8377;)</td>
+        </tr>
+      </tbody>
+      <tbody class="inventory" style="height: 200px;">
+        {% if item_forms %}
+        {% for item in item_forms %}
+        <tr>
+          <td><a class="cut">-</a>{{ forloop.counter }}</td>
+          <td colspan="6"><span contenteditable>{{ item.products }}</span></td>
+          {% for prod in allprod %}
+          {% if prod.id == item.instance.product.id %}
+          <td colspan="2"><span name="hsn" contenteditable>{{prod.hsn}}</span></td>
+          <td colspan="2"><span>{{item.quantity}}</span></td>
+          <td colspan="2"><span name="unit" contenteditable>{{prod.unit}}</span></td>
+          <td colspan="2"><span data-prefix>&#8377; </span><span name="rate" contenteditable>{{prod.rate}}</span></td>
+          <td colspan="2"><span name="cgst" contenteditable>{{prod.cgst}}</span> %</td>
+          <td colspan="2"><span data-prefix>&#8377; </span><span contenteditable>150.00</span></td>
+          <td colspan="2"><span name="sgst" contenteditable>{{prod.sgst}}</span> %</td>
+          <td colspan="2"><span data-prefix>&#8377; </span><span contenteditable>150.00</span></td>
+          <td colspan="3"><span data-prefix>&#8377; </span><span>{{item.total}}</span></td>
+          {% endif %}
+          {% endfor %}
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+          <td><a class="cut">-</a>1</td>
+          <td colspan="6"><span>{{ form.products }}</span></td>
+          <td colspan="2"><span name="hsn">6815</span></td>
+          <td colspan="2"><span>{{itemform.quantity}}</span></td>
+          <td colspan="2"><span name="unit">Pcs.</span></td>
+          <td colspan="2"><span data-prefix>&#8377; </span><span name="rate">2.8</span></td>
+          <td colspan="2"><span name="cgst">6.00</span> %</td>
+          <td colspan="2"><span data-prefix>&#8377; </span><span>150.00</span></td>
+          <td colspan="2"><span name="sgst">6.00</span> %</td>
+          <td colspan="2"><span data-prefix>&#8377; </span><span>150.00</span></td>
+          <td colspan="3"><span data-prefix>&#8377; </span><span class="item_total">{{itemform.total}}</span></td>
+        </tr>
+        {% endif %}
+      </tbody>
+      <tbody>
+        <tr>
+          <td colspan="21">&nbsp;</td>
+          <td colspan="2">Freight Charges</td>
+          <td colspan="3">&#8377; <span id="extra">{{ form.freight_charges }}</span></td>
+        </tr>
+      </tbody>
+      <tbody class="balance">
+        <tr style="height: 18px;">
+          <td colspan="3"><b>Tax Rate</b></td>
+          <td colspan="3"><b>Taxable Amt.</b></td>
+          <td colspan="3"><b>CGST Amt.</b></td>
+          <td colspan="3"><b>SGST Amt.</b></td>
+          <td colspan="3"><b>Total Tax</b></td>
+          <td colspan="8" style="border-bottom: none; width: 37%;text-align: right;"><b>Grand Total</b></td>
+          <td colspan="3" style="text-align: left;"><b>&#8377; <span class="grand_total">{{ form.grand_total }}</span></b></td>
+        </tr>
+            <tr style="height: 18px;">
+              <td colspan="3">12%</td>
+              <td colspan="3">&#8377; <span id="taxable">5600</span></td>
+              <td colspan="3">&#8377; <span id="tot_cgst">336</span></td>
+              <td colspan="3">&#8377; <span id="tot_sgst">336</span></td>
+              <td colspan="3">&#8377; <span id="tot_tax">672</span></td>
+              <td colspan="11" style="border-bottom: none; border-top: none;">&nbsp;</td>
+            </tr>
+            <tr>
+              <td colspan="26" style="border-top: none; border-bottom: none;">&nbsp;</td>
+            </tr>
+            <tr>
+              <td colspan="26" style="border-top: none;"><b><span id="total-desc">Rupees Eighteen thousand</span></b></td>
+            </tr>
+            <tr style="height: 60px;">
+              <td colspan="13" style="text-align: bottom;"><br>Receiver's Signature</td>
+              <td colspan="13" style="text-align: bottom; text-align: right;"><br>Authorised Signatory</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="row m-2">
+        <div class="container" style="text-align: right;">
+          <button class="btn btn-success" name="submit_invoice" type="submit">Save and Continue</button><br />
+        </div>
+      </div>
+      {% if form.errors %}
+    <div class="alert alert-danger">
+      <strong>Error:</strong>
+      <ul>
+        {% for field, errors in form.errors.items %}
+          {% for error in errors %}
+            <li>{{ field }}: {{ error }}</li>
+          {% endfor %}
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+    </form>
+  <script>
+    document.getElementById('extra').firstChild.value = 900;
+    document.getElementById('id_quantity').value = 1;
+  </script>
+</div>
+<script src="{% static 'base.js' %}"></script>
+  {% endblock content %}
+
+
+
+
+  {% block jsfiles %}
+  <script>
+    addrows();
+  function addrows(){
+    var selectElements = document.getElementsByName("products");
+    for (var i = 0; i < selectElements.length; i++) {
+      var selectElement = selectElements[i];
+      selectElement.removeAttribute("multiple");
+    
+
+        selectElement.addEventListener("change", function() {
+          var selectedHSNElement = selectElement.closest("tr").querySelector("[name='hsn']");
+          var selectedUnitElement = selectElement.closest("tr").querySelector("[name='unit']");
+          var selectedRateElement = selectElement.closest("tr").querySelector("[name='rate']");
+          var selectedCGSTElement = selectElement.closest("tr").querySelector("[name='cgst']");
+          var selectedSGSTElement = selectElement.closest("tr").querySelector("[name='sgst']");
+          var selectedProduct = selectElement.value; // Get the selected product value
+          {% for product in posts %}
+            if({{forloop.counter}} == selectedProduct){
+              var hsnValue = {{product.hsn}};
+              var unitValue = '{{product.unit}}';
+              var rateValue = {{product.rate}};
+              var cgstValue = {{product.cgst}};
+              var sgstValue = {{product.sgst}};
+              if (selectedProduct) {
+                selectedHSNElement.innerText = hsnValue;
+                selectedUnitElement.innerText = unitValue;
+                selectedRateElement.innerText = rateValue.toFixed(2);
+                selectedCGSTElement.innerText = cgstValue.toFixed(2);
+                selectedSGSTElement.innerText = sgstValue.toFixed(2);
+              }
+            }
+          {% endfor %}
+        });
+      }
+  }
+  document.addEventListener('keydown', addrows);
+	document.addEventListener('keyup', addrows);
+	document.addEventListener('mousewheel', addrows);
+	document.addEventListener('click', addrows);
+$(document).keypress(
+  function(event){
+    if (event.which == '13') {
+      event.preventDefault();
+    }
+});
+{% comment %} 
+  $('button[name="submit_invoice"]').on('click', function(e) {
+    var $form = $(this).closest('form');
+    e.preventDefault();
+    let text = "Are you sure you want to save ?\nEither OK or Cancel.";
+    if (confirm(text) == true) {
+      $form.trigger('submit');
+    } else {
+      e.preventDefault();
+    }
+  }); 
+  {% endcomment %}
+  </script>
+  {% endblock jsfiles %}

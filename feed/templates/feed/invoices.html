@@ -1,0 +1,142 @@
+{% extends "feed/base.html" %} {% load static %} {% block searchform %}
+{% comment %} <form class="form-inline my-2 my-lg-0 ml-5" action="{% url 'search' %}" method="get">
+  <input name="p" type="text" placeholder="Search posts.." />
+  <button class="btn btn-success my-2 my-sm-0 ml-4" type="submit">
+    Search
+  </button> 
+</form>{% endcomment %}
+{% endblock searchform %}
+
+{% block allinvoicesactive %}active{% endblock allinvoicesactive %}
+
+{% block content %}
+<div class="row mt-2 mb-5">
+  <div class="col">
+    <h1>All Invoices</h1>
+  </div>
+</div>
+<div class="card">
+  <div class="">
+    <div id="DataTables_Table_0_wrapper" class="">
+      <div class="row m-2">
+        <div class="col-12 col-md-6 d-flex align-items-center justify-content-start flex-column flex-md-row pe-3 gap-md-2">
+          <div id="DataTables_Table_0_filter" class="dataTables_filter">
+            <form class="form-inline" action="{% url 'invoices' %}" method="get">
+              <input name="p" type="search" class="form-control" placeholder="Search Invoice" aria-controls="DataTables_Table_0">
+              <button class="btn btn-secondary my-2 my-sm-0 ml-4" type="submit">Search</button>
+            </form>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 d-flex align-items-center justify-content-end gap-2">
+          <div class="dt-action-buttons text-xl-end text-lg-start text-md-end text-start mt-md-0 mt-3">
+            <div class="dt-buttons btn-group flex-wrap">
+              <a class="btn btn-secondary btn-primary" tabindex="0" aria-controls="DataTables_Table_0" type="button" href="{% url 'home' %}">
+                <span><i class="bx bx-plus me-md-1"></i><span class="d-md-inline-block d-none">Create Invoice</span></span>
+              </a> 
+            </div>
+          </div>
+        </div>
+      </div>
+      <table class="table" style="border-collapse: separate;">
+        <thead class="table-light">
+          <tr>
+            <th class="control sorting dtr-hidden" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 0px; display: none;" aria-label=": activate to sort column ascending"></th>
+            <th class="sorting sorting_desc" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 84px;" aria-label="#ID: activate to sort column ascending" aria-sort="descending">#Invoice Number</th>
+            <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 323px;" aria-label="Client: activate to sort column ascending">Client</th>
+            <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 88px;" aria-label="Total: activate to sort column ascending">Total</th>
+            <th class="text-truncate sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 157px;" aria-label="Issued Date: activate to sort column ascending">Issued Date</th>
+            <th class="cell-fit sorting_disabled" rowspan="1" colspan="1" style="width: 76px;" aria-label="Actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if invoices_list %}
+          {% for invoice in invoices_list %}
+          <tr class="odd">
+            <td class="  control" tabindex="0" style="display: none;"></td>
+            <td class="sorting_1">#{{invoice.invoice_num}}</td>
+            <td>{{invoice.cust_name}} ( <small class="text-truncate text-muted">{{invoice.cust_add}}</small> )</td>
+            <td>&#8377; {{invoice.grand_total}}</td>
+            <td>{{invoice.date}}</td>
+            <td>
+              <div class="d-flex align-items-center">
+                <a href="{% url 'post-detail' invoice.id %}">View</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+          {% elif  customers_list%}
+          {% for invoice in customers_list %}
+          <tr class="odd">
+            <td class="  control" tabindex="0" style="display: none;"></td>
+            <td class="sorting_1">#{{invoice.invoice_num}}</td>
+            <td>{{invoice.cust_name}} ( <small class="text-truncate text-muted">{{invoice.cust_add}}</small> )</td>
+            <td>&#8377; {{invoice.grand_total}}</td>
+            <td>{{invoice.date}}</td>
+            <td>
+              <div class="d-flex align-items-center">
+                <a href="{% url 'post-detail' invoice.id %}">View</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          {% for invoice in posts %}
+          <tr class="odd">
+            <td class="  control" tabindex="0" style="display: none;"></td>
+            <td class="sorting_1">#{{invoice.invoice_num}}</td>
+            <td>{{invoice.cust_name}} ( <small class="text-truncate text-muted">{{invoice.cust_add}}</small> )</td>
+            <td>&#8377; {{invoice.grand_total}}</td>
+            <td>{{invoice.date}}</td>
+            <td>
+              <div class="d-flex align-items-center">
+                <a href="{% url 'post-detail' invoice.id %}">View</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+          {% endif %}
+        </tbody>
+      </table>
+      <div class="row mx-2">
+        {% comment %} <div class="col-sm-12 col-md-6">
+          <div class="dataTables_info" id="DataTables_Table_0_info" role="status" aria-live="polite">Showing 1 to 10 of 50 entries</div>
+        </div> {% endcomment %}
+        {% if is_paginated %}
+          <div class="col-sm-12 col-md-4" style="text-align:left;">
+            {% if page_obj.has_previous %}
+            <a class="btn btn-outline-info mb-4" href="?page=1">First</a>
+            <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            {% endif %}
+          </div>
+          <div class="col-sm-12 col-md-4" style="text-align:center;">
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} 
+            <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+            {% endif %}
+            {% endfor %}
+          </div>
+          <div class="col-sm-12 col-md-4" style="text-align:right;">
+            {% if page_obj.has_next %}
+              <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
+              <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+    
+
+  {% endblock content %}
+
+  {% block jsfiles %}
+  <script>
+    
+  </script>
+  {% endblock jsfiles %}
