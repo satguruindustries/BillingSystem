@@ -1,3 +1,0 @@
-pip install django-stdimage==5.1.1
-pip install django-autoslug==1.9.8
-pip3 install --user django-crispy-forms
