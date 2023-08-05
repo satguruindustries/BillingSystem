@@ -1,0 +1,4 @@
+django
+django-stdimage==5.1.1
+django-autoslug==1.9.8
+django-crispy-forms
