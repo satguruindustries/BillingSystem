@@ -15,8 +15,7 @@ from django.utils.decorators import method_decorator
 from django import forms
 
 import json
-global sub
-sub = "Physics"
+
 @method_decorator(login_required, name='dispatch')
 class PostListView(ListView):
     model = Product
@@ -29,7 +28,6 @@ class PostListView(ListView):
             p = Profile.objects.get(user=self.request.user)
             friends = p.friends.all()
             context['friends'] = friends
-        context['sub'] = sub
         context['form'] = InvoiceForm()
         context['itemform'] = InvoiceItemForm()
         last=1
@@ -41,12 +39,7 @@ class PostListView(ListView):
         context['invoice_num'] = last
         return context
 
-def updatesub(request,name):
-    global sub
-    sub = name
-    return redirect('home')
-
-
+@method_decorator(login_required, name='dispatch')
 class UserPostListView(LoginRequiredMixin, ListView):
     model = Product
     template_name = 'feed/user_posts.html'
@@ -64,40 +57,46 @@ class UserPostListView(LoginRequiredMixin, ListView):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         return Product.objects.filter(user_name=user).order_by('-date_posted')
 
-
+@login_required
 def post_detail(request, pk):
     my_invoice = get_object_or_404(invoice, pk=pk)
     invoice_items = InvoiceItem.objects.filter(invoice=my_invoice)
     user = request.user
     return render(request, 'feed/invoice_detail.html', {'invoice':my_invoice, 'invoice_items':invoice_items})
 
+@login_required
 def create_post(request):
-    user = request.user
-    if request.method == "POST":
-        form = NewProductForm(request.POST, request.FILES)
-        if form.is_valid():
-            data = form.save(commit=False)
-            data.user_name = user
-            data.save()
-            messages.success(request, f'Posted Successfully')
-            return redirect('home')
+    if request.user.is_authenticated:
+        user = request.user
+        if request.method == "POST":
+            form = NewProductForm(request.POST, request.FILES)
+            if form.is_valid():
+                data = form.save(commit=False)
+                data.user_name = user
+                data.save()
+                messages.success(request, f'Posted Successfully')
+                return redirect('home')
+        else:
+            form = NewProductForm()
     else:
-        form = NewProductForm()
+        return redirect('home')
     return render(request, 'feed/create_post.html', {'form':form})
 
+@method_decorator(login_required, name='dispatch')
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = invoice
     form_class = InvoiceForm
-    template_name = 'feed/home.html'
+    template_name = 'feed/update.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['allprod'] = Product.objects.all()
         if self.request.method == 'POST':
             context['form'] = InvoiceForm(self.request.POST, instance=self.object)
-            context['item_forms'] = [InvoiceItemForm(self.request.POST, prefix=f'item_{item.id}', instance=item) for item in InvoiceItem.objects.filter(invoice=self.object)]
+            context['item_forms'] = [InvoiceItemForm(self.request.POST, instance=item) for item in InvoiceItem.objects.filter(invoice=self.object)]
         else:
             context['form'] = InvoiceForm(instance=self.object)
+            context['posts'] = Product.objects.all()
 
             # Create the "products" queryset containing all items from Product.objects.all()
             products_queryset = Product.objects.all()
@@ -105,7 +104,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             # Set up the InvoiceItemForm instances with initial product data
             for item in InvoiceItem.objects.filter(invoice=self.object):
                 # Create a new form instance for each item
-                item_form = InvoiceItemForm(prefix=f'item_{item.id}', instance=item)
+                item_form = InvoiceItemForm(instance=item)
                 # Add a new 'products' field to each form and set its queryset
                 item_form.fields['products'] = forms.ModelChoiceField(queryset=products_queryset, initial=item.product.id if item.product else None)
                 item_forms.append(item_form)
@@ -120,12 +119,27 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         # Save the updated invoice
         response = super().form_valid(form)
 
-        # Save the invoice items
-        item_forms = self.get_context_data()['item_forms']
-        for item_form in item_forms:
-            if item_form.is_valid():
-                item_form.instance.invoice = self.object
-                item_form.save()
+        # Delete all existing invoice items for the current invoice
+        InvoiceItem.objects.filter(invoice=self.object).delete()
+
+        # Get the selected products from the form
+        product_names = self.request.POST.getlist('products')
+        quantities = self.request.POST.getlist('quantity')
+        totals = self.request.POST.getlist('total')
+
+        # Ensure that the number of selected products matches the number of invoice items
+        if len(product_names) > 0:
+            all_prod = Product.objects.all()
+            invoice_obj = self.object
+            # Loop through the product details and create InvoiceItem objects
+            for product_name, quantity, total in zip(product_names, quantities, totals):
+                product = all_prod[int(product_name)-1]
+                InvoiceItem.objects.create(invoice=invoice_obj, product=product, quantity=quantity, total=total)
+
+            # Calculate the grand total and save it in the invoice
+            grand_total = sum(float(total) for total in totals) + float(form.instance.freight_charges)
+            invoice_obj.grand_total = grand_total
+            invoice_obj.save()
 
         return response
 
@@ -133,13 +147,14 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         invoice = self.get_object()
         return True
 
+@login_required
 def post_delete(request, pk):
     post = Product.objects.get(pk=pk)
     if request.user== post.user_name:
         Product.objects.get(pk=pk).delete()
     return redirect('home')
 
-
+@login_required
 def search(request):
     query = request.GET.get('p')
     if(not query):
@@ -152,7 +167,7 @@ def search(request):
     }
     return render(request, "feed/invoices.html", context)
 
-
+@method_decorator(login_required, name='dispatch')
 class explore_posts(ListView):
     model = Product
     template_name = 'feed/explore.html'
@@ -169,6 +184,7 @@ class explore_posts(ListView):
             context['liked_post'] = liked
         return context
     
+@method_decorator(login_required, name='dispatch')
 class invoices(ListView):
     model = invoice
     template_name = 'feed/invoices.html'
@@ -186,6 +202,7 @@ class invoices(ListView):
         context['customers_list'] = customers_list
         return context
 
+@login_required
 def like(request):
     post_id = request.GET.get("likeId", "")
     user = request.user
@@ -203,7 +220,7 @@ def like(request):
     response = json.dumps(resp)
     return HttpResponse(response, content_type = "application/json")
 
-
+@login_required
 def save_invoice(request):
     user = request.user
     if request.method == "POST":

@@ -59,7 +59,8 @@
             <td>{{invoice.date}}</td>
             <td>
               <div class="d-flex align-items-center">
-                <a href="{% url 'post-detail' invoice.id %}">View</a>
+                <a class="mx-2" href="{% url 'post-detail' invoice.id %}">View</a>
+                <a class="mx-2" href="{% url 'invoice-update' invoice.id%}">Edit</a>
               </div>
             </td>
           </tr>
@@ -74,7 +75,8 @@
             <td>{{invoice.date}}</td>
             <td>
               <div class="d-flex align-items-center">
-                <a href="{% url 'post-detail' invoice.id %}">View</a>
+                <a class="mx-2" href="{% url 'post-detail' invoice.id %}">View</a>
+                <a class="mx-2" href="{% url 'invoice-update' invoice.id%}">Edit</a>
               </div>
             </td>
           </tr>
@@ -89,7 +91,8 @@
             <td>{{invoice.date}}</td>
             <td>
               <div class="d-flex align-items-center">
-                <a href="{% url 'post-detail' invoice.id %}">View</a>
+                <a class="mx-2" href="{% url 'post-detail' invoice.id %}">View</a>
+                <a class="mx-2" href="{% url 'invoice-update' invoice.id%}">Edit</a>
               </div>
             </td>
           </tr>

@@ -11,11 +11,11 @@
 
 <div class="row mt-2 mb-2">
   <div class="col-12">
-    <h1>Billing</h1>
+    <h1>Updating Invoice No. {{ form.invoice_num.value }}</h1>
   </div>
 </div>
     
-<form class="form" method="POST" action="{% url 'save_invoice' %}" enctype="multipart/form-data">
+<form class="form" method="POST" enctype="multipart/form-data">
   {% csrf_token %}
   <style>
     input {
@@ -52,8 +52,41 @@
       pointer-events: none;
     }
   </style>
+  <script>
+    function addrows(){
+        var selectElements = document.getElementsByName("products");
+        for (var i = 0; i < selectElements.length; i++) {
+            var selectElement = selectElements[i];
+            selectElement.removeAttribute("multiple");
+            selectElement.addEventListener("change", function() {
+                var selectedHSNElement = selectElement.closest("tr").querySelector("[name='hsn']");
+                var selectedUnitElement = selectElement.closest("tr").querySelector("[name='unit']");
+                var selectedRateElement = selectElement.closest("tr").querySelector("[name='rate']");
+                var selectedCGSTElement = selectElement.closest("tr").querySelector("[name='cgst']");
+                var selectedSGSTElement = selectElement.closest("tr").querySelector("[name='sgst']");
+                var selectedProduct = selectElement.value; // Get the selected product value
+                {% for product in posts %}
+                if({{forloop.counter}} == selectedProduct){
+                    var hsnValue = {{product.hsn}};
+                    var unitValue = '{{product.unit}}';
+                    var rateValue = {{product.rate}};
+                    var cgstValue = {{product.cgst}};
+                    var sgstValue = {{product.sgst}};
+                    if (selectedProduct) {
+                        selectedHSNElement.innerText = hsnValue;
+                        selectedUnitElement.innerText = unitValue;
+                        selectedRateElement.innerText = rateValue.toFixed(2);
+                        selectedCGSTElement.innerText = cgstValue.toFixed(2);
+                        selectedSGSTElement.innerText = sgstValue.toFixed(2);
+                    }
+                }
+                {% endfor %}
+            });
+        }
+    }
+  </script>
   <div id="invoice" class="invoice">
-    <table style="border-collapse: collapse; width: 100%;" border="1">
+    <table style="border-collapse: collapse; width: 100%; height: 36px;" border="1">
       <tbody>
         <tr style="height: 18px;">
           <td colspan="12" style="border-right: none;">GSTIN : 22AEJFS4748E1Z0</td>
@@ -77,19 +110,12 @@
       </tbody>
       <tbody>
         <tr class="invoice_detail" style="height: 18px;">
-          <td colspan="8"><b>Invoice No. :</b> {{ form.invoice_num }}</td>
-          <td colspan="8"><b>Dated :</b> <span>{{ form.date }}</span></td>
+          <td colspan="8"><b>Invoice No. : {{ form.invoice_num }}</b></td>
+          <td colspan="8"><b>Dated : <span>{{ form.date }}</span></b></td>
           <td colspan="6"><b>Place of supply : Chhattisgarh (22)</b></td>
           <td colspan="4"><div class="btn btn-primary add">+ Add item</div></td>
         </tr>
       </tbody>
-      <script>
-        document.getElementById("id_invoice_num").value = {{ invoice_num }};
-        var inputElement = document.getElementById("id_invoice_num");
-        if (inputElement) {
-          inputElement.readOnly = true;
-        }
-      </script>
       <tbody style="table-layout: fixed;">
         <tr style="height: 18px;">
           <td>S.N.</td>
@@ -106,41 +132,28 @@
         </tr>
       </tbody>
       <tbody class="inventory" style="height: 200px;">
-        {% if item_forms %}
         {% for item in item_forms %}
         <tr>
           <td><a class="cut">-</a>{{ forloop.counter }}</td>
-          <td colspan="6"><span contenteditable>{{ item.products }}</span></td>
+          <td colspan="6"><span>{{ item.products }}</span></td>
           {% for prod in allprod %}
           {% if prod.id == item.instance.product.id %}
-          <td colspan="2"><span name="hsn" contenteditable>{{prod.hsn}}</span></td>
+          <td colspan="2"><span name="hsn">{{prod.hsn}}</span></td>
           <td colspan="2"><span>{{item.quantity}}</span></td>
-          <td colspan="2"><span name="unit" contenteditable>{{prod.unit}}</span></td>
-          <td colspan="2"><span data-prefix>&#8377; </span><span name="rate" contenteditable>{{prod.rate}}</span></td>
-          <td colspan="2"><span name="cgst" contenteditable>{{prod.cgst}}</span> %</td>
-          <td colspan="2"><span data-prefix>&#8377; </span><span contenteditable>150.00</span></td>
-          <td colspan="2"><span name="sgst" contenteditable>{{prod.sgst}}</span> %</td>
-          <td colspan="2"><span data-prefix>&#8377; </span><span contenteditable>150.00</span></td>
+          <td colspan="2"><span name="unit">{{prod.unit}}</span></td>
+          <td colspan="2"><span data-prefix>&#8377; </span><span name="rate">{{prod.rate}}</span></td>
+          <td colspan="2"><span name="cgst">{{prod.cgst}}</span> %</td>
+          <td colspan="2"><span data-prefix>&#8377; </span><span>150.00</span></td>
+          <td colspan="2"><span name="sgst">{{prod.sgst}}</span> %</td>
+          <td colspan="2"><span data-prefix>&#8377; </span><span>150.00</span></td>
           <td colspan="3"><span data-prefix>&#8377; </span><span>{{item.total}}</span></td>
           {% endif %}
           {% endfor %}
+          <script>
+              addrows();
+          </script>
         </tr>
         {% endfor %}
-        {% else %}
-        <tr>
-          <td><a class="cut">-</a>1</td>
-          <td colspan="6"><span>{{ form.products }}</span></td>
-          <td colspan="2"><span name="hsn">6815</span></td>
-          <td colspan="2"><span>{{itemform.quantity}}</span></td>
-          <td colspan="2"><span name="unit">Pcs.</span></td>
-          <td colspan="2"><span data-prefix>&#8377; </span><span name="rate">2.8</span></td>
-          <td colspan="2"><span name="cgst">6.00</span> %</td>
-          <td colspan="2"><span data-prefix>&#8377; </span><span>150.00</span></td>
-          <td colspan="2"><span name="sgst">6.00</span> %</td>
-          <td colspan="2"><span data-prefix>&#8377; </span><span>150.00</span></td>
-          <td colspan="3"><span data-prefix>&#8377; </span><span class="item_total">{{itemform.total}}</span></td>
-        </tr>
-        {% endif %}
       </tbody>
       <tbody>
         <tr>
@@ -210,42 +223,10 @@
 
 
   {% block jsfiles %}
-  <script>
-    addrows();
-  function addrows(){
-    var selectElements = document.getElementsByName("products");
-    for (var i = 0; i < selectElements.length; i++) {
-      var selectElement = selectElements[i];
-      selectElement.removeAttribute("multiple");
-    
+<script>
+addrows();
 
-        selectElement.addEventListener("change", function() {
-          var selectedHSNElement = selectElement.closest("tr").querySelector("[name='hsn']");
-          var selectedUnitElement = selectElement.closest("tr").querySelector("[name='unit']");
-          var selectedRateElement = selectElement.closest("tr").querySelector("[name='rate']");
-          var selectedCGSTElement = selectElement.closest("tr").querySelector("[name='cgst']");
-          var selectedSGSTElement = selectElement.closest("tr").querySelector("[name='sgst']");
-          var selectedProduct = selectElement.value; // Get the selected product value
-          {% for product in posts %}
-            if({{forloop.counter}} == selectedProduct){
-              var hsnValue = '{{product.hsn}}';
-              var unitValue = '{{product.unit}}';
-              var rateValue = {{product.rate}};
-              var cgstValue = {{product.cgst}};
-              var sgstValue = {{product.sgst}};
-              if (selectedProduct) {
-                selectedHSNElement.innerText = hsnValue;
-                selectedUnitElement.innerText = unitValue;
-                selectedRateElement.innerText = rateValue.toFixed(2);
-                selectedCGSTElement.innerText = cgstValue.toFixed(2);
-                selectedSGSTElement.innerText = sgstValue.toFixed(2);
-              }
-            }
-          {% endfor %}
-        });
-      }
-  }
-  document.addEventListener('keydown', addrows);
+    document.addEventListener('keydown', addrows);
 	document.addEventListener('keyup', addrows);
 	document.addEventListener('mousewheel', addrows);
 	document.addEventListener('click', addrows);

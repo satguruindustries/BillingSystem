@@ -40,7 +40,7 @@ class invoice(models.Model):
     grand_total = models.DecimalField(max_digits=10, decimal_places=2, blank=False, default=0)
 
     def __str__(self):
-        return self.invoice_num
+        return str(self.invoice_num)
     
     def get_absolute_url(self):
         return reverse('post-detail', kwargs={'pk': self.pk})

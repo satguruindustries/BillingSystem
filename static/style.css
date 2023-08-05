@@ -70,14 +70,6 @@
   }
 }
 
-/* Media Queries */
-.navbuttons{
-    display: none;
-  }
-.mob{
-  display: none;
-}
-
 @media (max-width: 1043px) {
   /* Hide Desktop Menu */
 
@@ -93,20 +85,6 @@
   .hamburger {
     display: block;
   }
-}
-@media screen and (max-width: 768px) {
-    .webnav{
-      display: none;
-    }
-    .webcontent{
-      display: none;
-    }
-    .navbuttons{
-      display: block;
-    }
-    .mob{
-      display: block;
-    }
 }
 
 
