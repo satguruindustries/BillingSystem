@@ -328,9 +328,10 @@ window.onload = function () {
     document.getElementById("download")
         .addEventListener("click", () => {
 			
+			
             const invoice = this.document.getElementById("invoice");
             const originalContent = document.body.innerHTML; // Store original content
-            document.body.innerHTML = invoice.innerHTML; // Replace the content with the div content
+            document.body.innerHTML = invoice.innerHTML + "<br><br><br>" + invoice.innerHTML; // Replace the content with the div content
             window.print(); // Trigger the print dialog
             document.body.innerHTML = originalContent; // Restore the original content after printing
 

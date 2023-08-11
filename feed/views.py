@@ -13,6 +13,7 @@ from django.views.decorators.http import require_POST
 from users.models import Profile
 from django.utils.decorators import method_decorator
 from django import forms
+from django.utils import timezone
 
 import json
 
@@ -30,13 +31,20 @@ class PostListView(ListView):
             context['friends'] = friends
         context['form'] = InvoiceForm()
         context['itemform'] = InvoiceItemForm()
-        last=1
-        last_invoice = invoice.objects.order_by('-invoice_num').first()
-        if last_invoice:
-            last = last_invoice.invoice_num + 1
-        else:
-            last = 1 
-        context['invoice_num'] = last
+
+        current_year = timezone.now().year
+        next_year = current_year + 1
+        financial_year = f"{current_year % 100:02d}-{next_year % 100:02d}"
+        # Get the count of invoices for the current financial year
+        invoices_count = invoice.objects.filter(invoice_num__contains=financial_year).count()
+        invoice_number = 1
+        
+        if invoices_count:
+            invoice_number = invoices_count + 1
+            
+        invoice_num = f"INV/{financial_year}/{invoice_number}"
+        context['invoice_num'] = invoice_num
+        
         return context
 
 @method_decorator(login_required, name='dispatch')
@@ -125,6 +133,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         # Get the selected products from the form
         product_names = self.request.POST.getlist('products')
         quantities = self.request.POST.getlist('quantity')
+        rates = self.request.POST.getlist('rate')
         totals = self.request.POST.getlist('total')
 
         # Ensure that the number of selected products matches the number of invoice items
@@ -132,9 +141,9 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             all_prod = Product.objects.all()
             invoice_obj = self.object
             # Loop through the product details and create InvoiceItem objects
-            for product_name, quantity, total in zip(product_names, quantities, totals):
+            for product_name, quantity, total, rate in zip(product_names, quantities, totals, rates):
                 product = all_prod[int(product_name)-1]
-                InvoiceItem.objects.create(invoice=invoice_obj, product=product, quantity=quantity, total=total)
+                InvoiceItem.objects.create(invoice=invoice_obj, product=product, rate=rate, quantity=quantity, total=total)
 
             # Calculate the grand total and save it in the invoice
             grand_total = sum(float(total) for total in totals) + float(form.instance.freight_charges)
@@ -148,11 +157,11 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return True
 
 @login_required
-def post_delete(request, pk):
+def product_delete(request, pk):
     post = Product.objects.get(pk=pk)
-    if request.user== post.user_name:
-        Product.objects.get(pk=pk).delete()
-    return redirect('home')
+    if request.user.is_authenticated:
+        post.delete()
+    return redirect('products')
 
 @login_required
 def search(request):
@@ -202,6 +211,24 @@ class invoices(ListView):
         context['customers_list'] = customers_list
         return context
 
+@method_decorator(login_required, name='dispatch')
+class products(ListView):
+    model = Product
+    template_name = 'feed/products.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+    ordering = ['-id']
+    def get_context_data(self, **kwargs):
+        context = super(products, self).get_context_data(**kwargs)
+        query = self.request.GET.get('p')
+        if(not query):
+            return context
+        products_list = Product.objects.filter(name__icontains=query)
+        hsn_list = Product.objects.filter(hsn__icontains=query)
+        context['products_list'] = products_list
+        context['hsn_list'] = hsn_list
+        return context
+
 @login_required
 def like(request):
     post_id = request.GET.get("likeId", "")
@@ -249,12 +276,13 @@ def save_invoice(request):
             # Process invoice items
             product_names = request.POST.getlist('products')
             quantities = request.POST.getlist('quantity')
+            rates = request.POST.getlist('rate')
             totals = request.POST.getlist('total')
             all_prod = Product.objects.all()
             # Loop through the product details and create InvoiceItem objects
-            for product_name, quantity, total in zip(product_names, quantities, totals):
+            for product_name, quantity, total, rate in zip(product_names, quantities, totals, rates):
                 product = all_prod[int(product_name)-1]
-                InvoiceItem.objects.create(invoice=invoice_obj, product=product, quantity=quantity, total=total)
+                InvoiceItem.objects.create(invoice=invoice_obj, product=product, quantity=quantity, rate=rate, total=total)
 
             # Calculate the grand total and save it in the invoice
             grand_total = sum(float(total) for total in totals) + float(freight_charges)

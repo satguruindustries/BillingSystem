@@ -141,7 +141,7 @@
           <td colspan="2"><span name="hsn">{{prod.hsn}}</span></td>
           <td colspan="2"><span>{{item.quantity}}</span></td>
           <td colspan="2"><span name="unit">{{prod.unit}}</span></td>
-          <td colspan="2"><span data-prefix>&#8377; </span><span name="rate">{{prod.rate}}</span></td>
+          <td colspan="2">&#8377; <span style="display:inline-grid; width:80%">{{item.rate}}</span></td>
           <td colspan="2"><span name="cgst">{{prod.cgst}}</span> %</td>
           <td colspan="2"><span data-prefix>&#8377; </span><span>150.00</span></td>
           <td colspan="2"><span name="sgst">{{prod.sgst}}</span> %</td>
@@ -212,8 +212,6 @@
   {% endif %}
     </form>
   <script>
-    document.getElementById('extra').firstChild.value = 900;
-    document.getElementById('id_quantity').value = 1;
   </script>
 </div>
 <script src="{% static 'base.js' %}"></script>

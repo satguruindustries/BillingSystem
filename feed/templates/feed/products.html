@@ -7,29 +7,22 @@
 </form>{% endcomment %}
 {% endblock searchform %}
 
-{% block allinvoicesactive %}active{% endblock allinvoicesactive %}
+{% block allproductactive %}active{% endblock allproductactive %}
 
 {% block content %}
 <div class="row mt-2 mb-5">
   <div class="col">
-    <h1>All Invoices</h1>
+    <h1>All Products</h1>
   </div>
 </div>
-
-<style>
-  .odd  {
-    text-transform:capitalize;
-  }
-</style>
-
 <div class="card">
   <div class="">
     <div id="DataTables_Table_0_wrapper" class="">
       <div class="row m-2">
         <div class="col-12 col-md-6 d-flex align-items-center justify-content-start flex-column flex-md-row pe-3 gap-md-2">
           <div id="DataTables_Table_0_filter" class="dataTables_filter">
-            <form class="form-inline" action="{% url 'invoices' %}" method="get">
-              <input name="p" type="search" class="form-control" placeholder="Search Invoice" aria-controls="DataTables_Table_0">
+            <form class="form-inline" action="{% url 'products' %}" method="get">
+              <input name="p" type="search" class="form-control" placeholder="Search Product" aria-controls="DataTables_Table_0">
               <button class="btn btn-secondary my-2 my-sm-0 ml-4" type="submit">Search</button>
             </form>
           </div>
@@ -37,8 +30,8 @@
         <div class="col-12 col-md-6 d-flex align-items-center justify-content-end gap-2">
           <div class="dt-action-buttons text-xl-end text-lg-start text-md-end text-start mt-md-0 mt-3">
             <div class="dt-buttons btn-group flex-wrap">
-              <a class="btn btn-secondary btn-primary" tabindex="0" aria-controls="DataTables_Table_0" type="button" href="{% url 'home' %}">
-                <span><i class="bx bx-plus me-md-1"></i><span class="d-md-inline-block d-none">Create Invoice</span></span>
+              <a class="btn btn-secondary btn-primary" tabindex="0" aria-controls="DataTables_Table_0" type="button" href="{% url 'post-create' %}">
+                <span><i class="bx bx-plus me-md-1"></i><span class="d-md-inline-block d-none">Add Product</span></span>
               </a> 
             </div>
           </div>
@@ -47,59 +40,67 @@
       <table class="table" style="border-collapse: separate;">
         <thead class="table-light">
           <tr>
-            <th class="control sorting dtr-hidden" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 0px; display: none;" aria-label=": activate to sort column ascending"></th>
-            <th class="sorting sorting_desc" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 84px;" aria-label="#ID: activate to sort column ascending" aria-sort="descending">#Invoice Number</th>
-            <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 323px;" aria-label="Client: activate to sort column ascending">Client</th>
-            <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 88px;" aria-label="Total: activate to sort column ascending">Total</th>
-            <th class="text-truncate sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 157px;" aria-label="Issued Date: activate to sort column ascending">Issued Date</th>
-            <th class="cell-fit sorting_disabled" rowspan="1" colspan="1" style="width: 76px;" aria-label="Actions">Actions</th>
+            <th class="sorting sorting_desc" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="#ID: activate to sort column ascending" aria-sort="descending">S. No.</th>
+            <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="3" >Product Name</th>
+            <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" >HSN</th>
+            <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" >Rate</th>
+            <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" >Unit</th>
+            <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1">CGST</th>
+            <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" >SGST</th>
+            <th class="cell-fit sorting_disabled" rowspan="1" colspan="2" aria-label="Actions">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {% if invoices_list %}
-          {% for invoice in invoices_list %}
+          {% if products_list %}
+          {% for product in products_list %}
           <tr class="odd">
-            <td class="  control" tabindex="0" style="display: none;"></td>
-            <td class="sorting_1">{{invoice.invoice_num}}</td>
-            <td>{{invoice.cust_name}} ( <small class="text-truncate text-muted">{{invoice.cust_add}}</small> )</td>
-            <td>&#8377; {{invoice.grand_total}}</td>
-            <td>{{invoice.date}}</td>
+            <td colspan="1">{{forloop.counter}}</td>
+            <td colspan="3">{{product.name}}</td>
+            <td colspan="1">{{product.hsn}}</td>
+            <td colspan="1">{{product.rate}}</td>
+            <td colspan="1">{{product.unit}}</td>
+            <td colspan="1">{{product.cgst}}</td>
+            <td colspan="1">{{product.sgst}}</td>
             <td>
               <div class="d-flex align-items-center">
-                <a class="mx-2" href="{% url 'post-detail' invoice.id %}">View</a>
-                <a class="mx-2" href="{% url 'invoice-update' invoice.id%}">Edit</a>
+                <a class="mx-2" href="{% url 'invoice-update' product.id%}">Edit</a>
+                <a class="mx-2" href="{% url 'product-delete' product.id%}">Delete</a>
               </div>
             </td>
           </tr>
           {% endfor %}
-          {% elif  customers_list%}
-          {% for invoice in customers_list %}
+          {% elif  hsn_list%}
+          {% for product in hsn_list %}
           <tr class="odd">
-            <td class="  control" tabindex="0" style="display: none;"></td>
-            <td class="sorting_1">{{invoice.invoice_num}}</td>
-            <td>{{invoice.cust_name}} ( <small class="text-truncate text-muted">{{invoice.cust_add}}</small> )</td>
-            <td>&#8377; {{invoice.grand_total}}</td>
-            <td>{{invoice.date}}</td>
+            <td colspan="1">{{forloop.counter}}</td>
+            <td colspan="3">{{product.name}}</td>
+            <td colspan="1">{{product.hsn}}</td>
+            <td colspan="1">{{product.rate}}</td>
+            <td colspan="1">{{product.unit}}</td>
+            <td colspan="1">{{product.cgst}}</td>
+            <td colspan="1">{{product.sgst}}</td>
             <td>
               <div class="d-flex align-items-center">
-                <a class="mx-2" href="{% url 'post-detail' invoice.id %}">View</a>
-                <a class="mx-2" href="{% url 'invoice-update' invoice.id%}">Edit</a>
+                <a class="mx-2" href="{% url 'invoice-update' product.id%}">Edit</a>
+                <a class="mx-2" href="{% url 'product-delete' product.id%}">Delete</a>
               </div>
             </td>
           </tr>
           {% endfor %}
           {% else %}
-          {% for invoice in posts %}
+          {% for product in posts %}
           <tr class="odd">
-            <td class="  control" tabindex="0" style="display: none;"></td>
-            <td class="sorting_1">{{invoice.invoice_num}}</td>
-            <td>{{invoice.cust_name}} ( <small class="text-truncate text-muted">{{invoice.cust_add}}</small> )</td>
-            <td>&#8377; {{invoice.grand_total}}</td>
-            <td>{{invoice.date}}</td>
+            <td colspan="1">{{forloop.counter}}</td>
+            <td colspan="3">{{product.name}}</td>
+            <td colspan="1">{{product.hsn}}</td>
+            <td colspan="1">{{product.rate}}</td>
+            <td colspan="1">{{product.unit}}</td>
+            <td colspan="1">{{product.cgst}}</td>
+            <td colspan="1">{{product.sgst}}</td>
             <td>
               <div class="d-flex align-items-center">
-                <a class="mx-2" href="{% url 'post-detail' invoice.id %}">View</a>
-                <a class="mx-2" href="{% url 'invoice-update' invoice.id%}">Edit</a>
+                <a class="mx-2" href="{% url 'invoice-update' product.id%}">Edit</a>
+                <a class="mx-2" href="{% url 'product-delete' product.id%}">Delete</a>
               </div>
             </td>
           </tr>

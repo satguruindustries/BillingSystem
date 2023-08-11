@@ -30,4 +30,4 @@ class InvoiceForm(forms.ModelForm):
 class InvoiceItemForm(forms.ModelForm):
     class Meta:
         model = InvoiceItem
-        fields = ['quantity', 'total']
+        fields = ['quantity', 'rate', 'total']

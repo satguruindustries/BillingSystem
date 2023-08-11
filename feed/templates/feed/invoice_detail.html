@@ -34,6 +34,12 @@
       display: inline-grid;
       width: 80%;
     }
+    .billedto {
+      text-transform:capitalize !important;
+    }
+    .cust_details span {
+      text-transform:uppercase;
+    }
     select{
       width: 100%;
       height: 18px;
@@ -52,12 +58,12 @@
         <tr style="height: 18px;">
           <td colspan="13">
             <b>M/s SATGURU INDUSTRIES</b><br>
-            SITE - BANDHAKHAR, DIPKA ROAD, KORBA (C.G)<br>
+            SITE - BANDHAKHAR, DIPKA PALI ROAD, KORBA (C.G)<br>
             OFFICE - PLOT NO. 181, TRANSPORT NAGAR, KORBA (C.G.) - 495677<br>
             Mob. - 8718811901, 8718811902
           </td>
           <td class="cust_details" colspan="13">
-            <b>Billed to : </b><span class="billedto">{{ invoice.cust_name }}</span><br>
+            <b>Billed to : </b><span class="billedto"><b>{{ invoice.cust_name }}</b></span><br>
             <b>Address : </b> <span>{{ invoice.cust_add }}</span><br>
             <b>Place : </b> <span>{{ invoice.cust_place }}</span><br>
             <b>GSTIN : </b> <span>{{ invoice.cust_gstin }}</span>
@@ -100,7 +106,7 @@
           <td colspan="2"><span name="hsn">{{ item.product.hsn }}</span></td>
           <td colspan="2"><span>{{item.quantity}}</span></td>
           <td colspan="2"><span name="unit">{{ item.product.unit }}</span></td>
-          <td colspan="2"><span data-prefix>&#8377; </span><span name="rate">{{ item.product.rate }}</span></td>
+          <td colspan="2"><span data-prefix>&#8377; </span><span name="rate">{{item.rate}}</span></td>
           <td colspan="2"><span name="cgst">{{ item.product.cgst }}</span> %</td>
           <td colspan="2"><span data-prefix>&#8377; </span><span>150.00</span></td>
           <td colspan="2"><span name="sgst">{{ item.product.sgst }}</span> %</td>

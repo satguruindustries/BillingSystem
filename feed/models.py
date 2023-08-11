@@ -33,7 +33,7 @@ class invoice(models.Model):
     cust_add = models.CharField(max_length=255, blank=False)
     cust_place = models.CharField(max_length=255, blank=False)
     cust_gstin = models.CharField(max_length=255, blank=False)
-    invoice_num = models.IntegerField(default=1)
+    invoice_num = models.CharField(max_length=20, unique=True)
     date = models.CharField(max_length=255, blank=False)
     products = models.ManyToManyField(Product, through='InvoiceItem')
     freight_charges = models.DecimalField(max_digits=10, decimal_places=2, blank=True)
@@ -50,6 +50,7 @@ class InvoiceItem(models.Model):
     invoice = models.ForeignKey(invoice, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
+    rate = models.DecimalField(max_digits=10, decimal_places=2)
     total = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):

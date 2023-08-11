@@ -182,7 +182,7 @@ function updateInvoice() {
 		cells = a[i].querySelectorAll('span:last-child');
 		// set price as cell[2] * cell[4]
 		var qt = cells[2].firstChild.value;
-		var price = qt * parseFloatHTML(cells[4]);
+		var price = qt * (cells[4].firstChild.value);
 		price = parseFloat(price).toFixed(2);
         // taxable += price - ((100*12)/(100+12)*price)/100;
         // console.log(taxable);

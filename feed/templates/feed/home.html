@@ -38,6 +38,12 @@
       display: inline-grid;
       width: 80%;
     }
+    .billedto input {
+      text-transform:capitalize !important;
+    }
+    .cust_details span input {
+      text-transform:uppercase;
+    }
     select{
       width: 100%;
       height: 18px;
@@ -77,14 +83,14 @@
       </tbody>
       <tbody>
         <tr class="invoice_detail" style="height: 18px;">
-          <td colspan="8"><b>Invoice No. :</b> {{ form.invoice_num }}</td>
+          <td colspan="8"><b>Invoice No. : {{ form.invoice_num }}</b></td>
           <td colspan="8"><b>Dated :</b> <span>{{ form.date }}</span></td>
           <td colspan="6"><b>Place of supply : Chhattisgarh (22)</b></td>
           <td colspan="4"><div class="btn btn-primary add">+ Add item</div></td>
         </tr>
       </tbody>
       <script>
-        document.getElementById("id_invoice_num").value = {{ invoice_num }};
+        document.getElementById("id_invoice_num").value = '{{ invoice_num }}';
         var inputElement = document.getElementById("id_invoice_num");
         if (inputElement) {
           inputElement.readOnly = true;
@@ -106,41 +112,20 @@
         </tr>
       </tbody>
       <tbody class="inventory" style="height: 200px;">
-        {% if item_forms %}
-        {% for item in item_forms %}
-        <tr>
-          <td><a class="cut">-</a>{{ forloop.counter }}</td>
-          <td colspan="6"><span contenteditable>{{ item.products }}</span></td>
-          {% for prod in allprod %}
-          {% if prod.id == item.instance.product.id %}
-          <td colspan="2"><span name="hsn" contenteditable>{{prod.hsn}}</span></td>
-          <td colspan="2"><span>{{item.quantity}}</span></td>
-          <td colspan="2"><span name="unit" contenteditable>{{prod.unit}}</span></td>
-          <td colspan="2"><span data-prefix>&#8377; </span><span name="rate" contenteditable>{{prod.rate}}</span></td>
-          <td colspan="2"><span name="cgst" contenteditable>{{prod.cgst}}</span> %</td>
-          <td colspan="2"><span data-prefix>&#8377; </span><span contenteditable>150.00</span></td>
-          <td colspan="2"><span name="sgst" contenteditable>{{prod.sgst}}</span> %</td>
-          <td colspan="2"><span data-prefix>&#8377; </span><span contenteditable>150.00</span></td>
-          <td colspan="3"><span data-prefix>&#8377; </span><span>{{item.total}}</span></td>
-          {% endif %}
-          {% endfor %}
-        </tr>
-        {% endfor %}
-        {% else %}
         <tr>
           <td><a class="cut">-</a>1</td>
           <td colspan="6"><span>{{ form.products }}</span></td>
           <td colspan="2"><span name="hsn">6815</span></td>
           <td colspan="2"><span>{{itemform.quantity}}</span></td>
           <td colspan="2"><span name="unit">Pcs.</span></td>
-          <td colspan="2"><span data-prefix>&#8377; </span><span name="rate">2.8</span></td>
+          <td colspan="2">&#8377; <span style="display:inline-grid; width:80%">{{itemform.rate}}</span></td>
           <td colspan="2"><span name="cgst">6.00</span> %</td>
           <td colspan="2"><span data-prefix>&#8377; </span><span>150.00</span></td>
           <td colspan="2"><span name="sgst">6.00</span> %</td>
           <td colspan="2"><span data-prefix>&#8377; </span><span>150.00</span></td>
           <td colspan="3"><span data-prefix>&#8377; </span><span class="item_total">{{itemform.total}}</span></td>
+          
         </tr>
-        {% endif %}
       </tbody>
       <tbody>
         <tr>
@@ -201,6 +186,10 @@
   <script>
     document.getElementById('extra').firstChild.value = 900;
     document.getElementById('id_quantity').value = 1;
+    {% comment %} var rateElements = document.getElementsByName("rate");
+    for (var i = 0; i < rateElements.length; i++) {
+      rateElements[i].hidden = true;
+    } {% endcomment %}
   </script>
 </div>
 <script src="{% static 'base.js' %}"></script>
@@ -222,21 +211,19 @@
         selectElement.addEventListener("change", function() {
           var selectedHSNElement = selectElement.closest("tr").querySelector("[name='hsn']");
           var selectedUnitElement = selectElement.closest("tr").querySelector("[name='unit']");
-          var selectedRateElement = selectElement.closest("tr").querySelector("[name='rate']");
+          var inputRateElement = selectElement.closest("tr").querySelector("[name='rate']");
           var selectedCGSTElement = selectElement.closest("tr").querySelector("[name='cgst']");
           var selectedSGSTElement = selectElement.closest("tr").querySelector("[name='sgst']");
-          var selectedProduct = selectElement.value; // Get the selected product value
+          var selectedProduct = selectElement.value;
           {% for product in posts %}
             if({{forloop.counter}} == selectedProduct){
               var hsnValue = '{{product.hsn}}';
               var unitValue = '{{product.unit}}';
-              var rateValue = {{product.rate}};
               var cgstValue = {{product.cgst}};
               var sgstValue = {{product.sgst}};
               if (selectedProduct) {
                 selectedHSNElement.innerText = hsnValue;
                 selectedUnitElement.innerText = unitValue;
-                selectedRateElement.innerText = rateValue.toFixed(2);
                 selectedCGSTElement.innerText = cgstValue.toFixed(2);
                 selectedSGSTElement.innerText = sgstValue.toFixed(2);
               }
