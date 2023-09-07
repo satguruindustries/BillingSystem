@@ -104,10 +104,19 @@
         </tr>
         <tr style="height: 18px;">
           <td colspan="13">
-            <b>M/s SATGURU INDUSTRIES</b><br>
-            SITE - BANDHAKHAR, DIPKA PALI ROAD, KORBA (C.G)<br>
-            OFFICE - PLOT NO. 181, TRANSPORT NAGAR, KORBA (C.G.) - 495677<br>
-            Mob. - 8718811901, 8718811902
+            <div class="row">
+              <div class="col ml-2" style="max-width: max-content;">
+                <div class="logo">
+                  <img src="\media\SI logo main.jpg" />
+                </div>
+              </div>
+              <div class="col">
+              <b>M/s SATGURU INDUSTRIES</b><br>
+              SITE - BANDHAKHAR, DIPKA PALI ROAD, KORBA (C.G)<br>
+              OFFICE - PLOT NO. 181, TRANSPORT NAGAR, KORBA (C.G.) - 495677<br>
+              Mob. - 8718811901, 8718811902
+              </div>
+            </div>
           </td>
           <td class="cust_details" colspan="13">
             <b>Billed to : </b><span class="billedto">{{ form.cust_name }}</span><br>
@@ -140,7 +149,7 @@
           <td colspan="3">Amount(&#8377;)</td>
         </tr>
       </tbody>
-      <tbody class="inventory" style="height: 200px;">
+      <tbody class="inventory" style="height: 15vw;">
         {% for item in item_forms %}
         <tr>
           <td><a class="cut">-</a>{{ forloop.counter }}</td>
