@@ -57,9 +57,12 @@
       user-select: none; 
       pointer-events: none;
     }
+    .inventory input, .extra input, .balance input{
+      width : 10ch;
+    }
   </style>
-  <div id="invoice" class="invoice">
-    <table style="border-collapse: collapse; width: 100%;" border="1">
+  <div id="invoice" class="invoice m-3">
+    <table style="border-collapse: collapse; width: 100%;font-size:min(1.5vw,0.8rem);" border="1">
       <tbody>
         <tr style="height: 18px;">
           <td colspan="12" style="border-right: none;">GSTIN : 22AEJFS4748E1Z0</td>
@@ -68,10 +71,19 @@
         </tr>
         <tr style="height: 18px;">
           <td colspan="13">
-            <b>M/s SATGURU INDUSTRIES</b><br>
-            SITE - BANDHAKHAR, DIPKA PALI ROAD, KORBA (C.G)<br>
-            OFFICE - PLOT NO. 181, TRANSPORT NAGAR, KORBA (C.G.) - 495677<br>
-            Mob. - 8718811901, 8718811902
+            <div class="row">
+              <div class="col ml-2" style="max-width: max-content;">
+                <div class="logo">
+                  <a href="/"><img src="\media\SI logo main.jpg" /></a>
+                </div>
+              </div>
+              <div class="col">
+              <b>M/s SATGURU INDUSTRIES</b><br>
+              SITE - BANDHAKHAR, DIPKA PALI ROAD, KORBA (C.G)<br>
+              OFFICE - PLOT NO. 181, TRANSPORT NAGAR, KORBA (C.G.) - 495677<br>
+              Mob. - 8718811901, 8718811902
+              </div>
+            </div>
           </td>
           <td class="cust_details" colspan="13">
             <b>Billed to : </b><span class="billedto">{{ form.cust_name }}</span><br>
@@ -86,7 +98,7 @@
           <td colspan="8"><b>Invoice No. : {{ form.invoice_num }}</b></td>
           <td colspan="8"><b>Dated :</b> <span>{{ form.date }}</span></td>
           <td colspan="6"><b>Place of supply : Chhattisgarh (22)</b></td>
-          <td colspan="4"><div class="btn btn-primary add">+ Add item</div></td>
+          <td colspan="4"><div class="btn btn-primary add" style="font-size:min(1.5vw,0.8rem);">+ Add item</div></td>
         </tr>
       </tbody>
       <script>
@@ -111,7 +123,7 @@
           <td colspan="3">Amount(&#8377;)</td>
         </tr>
       </tbody>
-      <tbody class="inventory" style="height: 200px;">
+      <tbody class="inventory" style="height: 15vw;">
         <tr>
           <td><a class="cut">-</a>1</td>
           <td colspan="6"><span>{{ form.products }}</span></td>
@@ -127,7 +139,7 @@
           
         </tr>
       </tbody>
-      <tbody>
+      <tbody class="extra">
         <tr>
           <td colspan="21">&nbsp;</td>
           <td colspan="2">Freight Charges</td>
@@ -156,7 +168,7 @@
               <td colspan="26" style="border-top: none; border-bottom: none;">&nbsp;</td>
             </tr>
             <tr>
-              <td colspan="26" style="border-top: none;"><b><span id="total-desc">Rupees Eighteen thousand</span></b></td>
+              <td colspan="26" style="border-top: none;">Total amount (in words) : <b><span id="total-desc">Rupees Eighteen thousand</span></b></td>
             </tr>
             <tr style="height: 60px;">
               <td colspan="13" style="text-align: bottom;"><br>Receiver's Signature</td>

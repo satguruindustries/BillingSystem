@@ -99,8 +99,10 @@
             <td colspan="1">{{product.sgst}}</td>
             <td>
               <div class="d-flex align-items-center">
-                <a class="mx-2" href="{% url 'invoice-update' product.id%}">Edit</a>
+                <a class="mx-2" href="{% url 'product-update' product.id%}">Edit</a>
+                {% if product.id != 1 and product.id != 8 %}
                 <a class="mx-2" href="{% url 'product-delete' product.id%}">Delete</a>
+                {% endif %}
               </div>
             </td>
           </tr>

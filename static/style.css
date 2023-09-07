@@ -7,7 +7,7 @@
     color:black;
   }
   .nav-item.active{
-    color:rgb(30, 16, 231);
+    color:#d20505
   }
   a{
     text-decoration:none;
@@ -15,7 +15,17 @@
  
 
 /* Header & Navbar */
-
+.logo {
+  width: 75px;
+  height: auto;
+}
+.logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  position: left;
+  mix-blend-mode: multiply;
+}
 .nav-link {
     transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out;
     color: #fff;
@@ -27,6 +37,12 @@
   }
   .navbar-nav .active {
     border-bottom: 4px solid #d20505;
+  }
+  .navbar-nav a {
+    text-decoration:none;
+  }
+  .navbar-nav a:hover{
+    color:#d20505
   }
 
 

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product,invoice,InvoiceItem
+from .models import Product,invoice,InvoiceItem,Stock
 
 class NewProductForm(forms.ModelForm):
 	class Meta:
@@ -31,3 +31,13 @@ class InvoiceItemForm(forms.ModelForm):
     class Meta:
         model = InvoiceItem
         fields = ['quantity', 'rate', 'total']
+
+class StockForm(forms.ModelForm):
+    class Meta:
+        model = Stock
+        fields = ['date', 'quantity', 'transfer']
+    products = forms.ModelMultipleChoiceField(queryset=Product.objects.all())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['products'].queryset = Product.objects.all()

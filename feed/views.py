@@ -1,19 +1,20 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse
-from django.contrib import messages
 from django.core.paginator import Paginator
+from django.contrib import messages
 from django.contrib.auth.models import User
-from .forms import NewProductForm,InvoiceForm,InvoiceItemForm
-from django.views.generic import ListView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from .models import Product,invoice,InvoiceItem
 from django.contrib.auth.decorators import login_required
+from .forms import NewProductForm,InvoiceForm,InvoiceItemForm,StockForm
+from django.views.generic import ListView, UpdateView, DeleteView
 from django.views.decorators.http import require_POST
+from .models import Product,invoice,InvoiceItem,Stock
 from users.models import Profile
+from django.db.models import Sum
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django import forms
-from django.utils import timezone
 
 import json
 
@@ -83,12 +84,34 @@ def create_post(request):
                 data.user_name = user
                 data.save()
                 messages.success(request, f'Posted Successfully')
-                return redirect('home')
+                return redirect('products')
         else:
             form = NewProductForm()
     else:
-        return redirect('home')
+        return redirect('products')
     return render(request, 'feed/create_post.html', {'form':form})
+
+@login_required
+def product_update(request, pk):
+    user = request.user
+    
+    if pk:
+        post = get_object_or_404(Product, id=pk)
+    else:
+        post = None
+    
+    if request.method == "POST":
+        form = NewProductForm(request.POST, request.FILES, instance=post)
+        if form.is_valid():
+            data = form.save(commit=False)
+            data.user_name = user
+            data.save()
+            messages.success(request, 'Post Updated Successfully' if post else 'Posted Successfully')
+            return redirect('products')
+    else:
+        form = NewProductForm(instance=post)
+    
+    return render(request, 'feed/create_post.html', {'form': form})
 
 @method_decorator(login_required, name='dispatch')
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -210,6 +233,79 @@ class invoices(ListView):
         context['invoices_list'] = invoices_list
         context['customers_list'] = customers_list
         return context
+
+@method_decorator(login_required, name='dispatch')
+class dashboard(ListView):
+    model = Stock
+    template_name = 'feed/dashboard.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+    ordering = ['id']
+    def get_context_data(self, **kwargs):
+        context = super(dashboard, self).get_context_data(**kwargs)
+        context['form'] = StockForm()
+        
+        a_total_quantity = Stock.objects.filter(product_id=1).aggregate(total_quantity=Sum('quantity'))['total_quantity']
+        a_transfered = Stock.objects.filter(product_id=1).aggregate(transfered=Sum('transfer'))['transfered']
+        b_total_quantity = Stock.objects.filter(product_id=8).aggregate(total_quantity=Sum('quantity'))['total_quantity']
+        b_transfered = Stock.objects.filter(product_id=8).aggregate(transfered=Sum('transfer'))['transfered']
+        if(a_total_quantity==None):
+            a_total_quantity=0
+        
+        if(a_transfered==None):
+            a_transfered=0
+        
+        if(b_total_quantity==None):
+            b_total_quantity=0
+        
+        if(b_transfered==None):
+            b_transfered=0
+        
+        context['a_ground_stock'] = a_total_quantity-a_transfered
+        context['a_main_stock'] = a_transfered
+        context['b_ground_stock'] = b_total_quantity-b_transfered
+        context['b_main_stock'] = b_transfered
+
+        return context
+
+@login_required
+def newStockItem(request):
+    if request.user.is_authenticated:
+        user = request.user
+        if request.method == "POST":
+            form = StockForm(request.POST, request.FILES)
+            if form.is_valid():
+                date = form.cleaned_data['date']
+                quantity = form.cleaned_data['quantity']
+                transfer = form.cleaned_data['transfer']
+                product_names = request.POST.getlist('products')
+                all_prod = Product.objects.all()
+                for product_name in product_names:
+                    product = get_object_or_404(Product, pk=int(product_name))
+                    stocks_list = Stock.objects.filter(date__icontains=date, product=product)
+                    if stocks_list.exists():
+                        stock = stocks_list[0]
+                        stock.quantity += quantity
+                        stock.transfer += transfer
+                        stock.save()
+                        return redirect('dashboard')
+                    stock_obj = Stock.objects.create(date=date, product=product, quantity=quantity, transfer=transfer)
+                    stock_obj.save()
+                messages.success(request, f'Posted Successfully')
+                return redirect('dashboard')
+            
+        else:
+            form = StockForm()
+    else:
+        return redirect('dashboard')
+    return redirect('dashboard')
+
+@login_required
+def stock_item_delete(request, pk):
+    item = Stock.objects.get(pk=pk)
+    if request.user.is_authenticated:
+        item.delete()
+    return redirect('dashboard')
 
 @method_decorator(login_required, name='dispatch')
 class products(ListView):

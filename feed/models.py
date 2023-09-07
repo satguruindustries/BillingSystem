@@ -55,3 +55,13 @@ class InvoiceItem(models.Model):
 
     def __str__(self):
         return str(self.invoice.invoice_num) + " - " + self.product.name
+
+
+class Stock(models.Model):
+    date = models.CharField(max_length=255, blank=False)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.IntegerField()
+    transfer = models.IntegerField()
+
+    def __str__(self):
+        return self.product.name + " - " + self.date
