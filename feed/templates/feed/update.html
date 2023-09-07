@@ -57,6 +57,9 @@
       user-select: none; 
       pointer-events: none;
     }
+    .inventory input, .extra input, .balance input{
+      width : 10ch;
+    }
   </style>
   <script>
     function addrows(){
@@ -92,7 +95,7 @@
     }
   </script>
   <div id="invoice" class="invoice">
-    <table style="border-collapse: collapse; width: 100%; height: 36px;" border="1">
+    <table style="border-collapse: collapse; width: 100%;font-size:min(1.5vw,0.8rem);" border="1">
       <tbody>
         <tr style="height: 18px;">
           <td colspan="12" style="border-right: none;">GSTIN : 22AEJFS4748E1Z0</td>
