@@ -16,9 +16,12 @@
 
 <div class="row mt-2 mb-5">
   <div class="col">
-    <h1  class="h3 mb-0 text-gray-800">Dashboard</h1>
+    <h1  class="h4 mb-0 text-gray-800">PRODUCTION</h1>
   </div>
 </div>
+
+
+
 <div id="wrapper">
 
 
@@ -35,7 +38,7 @@
                         <p class="h5">Add Stock</p>
                         <div class="row">
                             <div class="col-12 col-md-12 d-flex align-items-center justify-content-start flex-column flex-md-row pe-3 gap-md-2">
-                            <div id="DataTables_Table_0_filter" class="dataTables_filter">
+                            <div id="Add_stock_form" class="dataTables_filter">
                                 <form class="form-inline" action="{% url 'newStockItem' %}" method="POST" enctype="multipart/form-data">
                                     {% csrf_token %}
                                     <div class="input-group mr-4 mb-2">
@@ -71,6 +74,7 @@
                         </div>
                     </div>
                 </div>
+                
 
                 <!-- Content Row -->
                 <div class="row">
@@ -158,18 +162,15 @@
                                         <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                                        <div class="dropdown-header">Dropdown Header:</div>
-                                        <a class="dropdown-item" href="#">Action</a>
-                                        <a class="dropdown-item" href="#">Another action</a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#">Something else here</a>
+                                        <div class="dropdown-header">Options:</div>
+                                        <button class="btn" onclick="exportTableToExcel('table_a')">Export to Excel</button>
                                     </div>
                                 </div>
                             </div>
                             <!-- Card Body -->
                             <div class="card-body">
                                 <div class="chart-area"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-                                <table class="table" style="border-collapse: separate;font-size:min(2.5vw,0.9rem)">
+                                <table class="table" id="table_a" style="border-collapse: separate;font-size:min(2.5vw,0.9rem)">
                                     <thead class="table-light">
                                       <tr>
                                         <th class="sorting sorting_desc" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="#ID: activate to sort column ascending" aria-sort="descending">Date</th>
@@ -210,18 +211,15 @@
                                         <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                                        <div class="dropdown-header">Dropdown Header:</div>
-                                        <a class="dropdown-item" href="#">Action</a>
-                                        <a class="dropdown-item" href="#">Another action</a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#">Something else here</a>
+                                        <div class="dropdown-header">Options:</div>
+                                        <button class="btn" onclick="exportTableToExcel('table_b')">Export to Excel</button>
                                     </div>
                                 </div>
                             </div>
                             <!-- Card Body -->
                             <div class="card-body">
                                 <div class="chart-area"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-                                <table class="table" style="border-collapse: separate;font-size:min(2.5vw,0.9rem)">
+                                <table class="table" id="table_b" style="border-collapse: separate;font-size:min(2.5vw,0.9rem)">
                                     <thead class="table-light">
                                         <tr>
                                           <th class="sorting sorting_desc" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="#ID: activate to sort column ascending" aria-sort="descending">Date</th>
@@ -240,6 +238,220 @@
                                           <td>
                                             <div class="d-flex align-items-center">
                                                 <a class="btn btn-danger mx-2 py-0 text-white" style="font-size:min(2.5vw,0.9rem)" onclick="confirmDelete('{{ log.id }}')">Delete</a>
+                                            </div>
+                                          </td>
+                                        </tr>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </tbody>
+                                  </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <!-- Content Sales -->
+                <div class="row mt-5 mb-5">
+                    <div class="col">
+                      <b><h1 class="h4 mb-0">SALES</h1></b>
+                    </div>
+                </div>
+                
+                <div class="card border-left-primary shadow h-100 my-2 mb-4">
+                    <div class="card-body m-2">
+                        <p class="h5">Sell Stock</p>
+                        <div class="row">
+                            <div class="col-12 col-md-12 d-flex align-items-center justify-content-start flex-column flex-md-row pe-3 gap-md-2">
+                            <div id="Sell_stock_form" class="dataTables_filter">
+                                <form class="form-inline" action="{% url 'newSellStockItem' %}" method="POST" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="input-group mr-4 mb-2">
+                                        <div class="input-group-prepend">
+                                          <span class="input-group-text">Date</span>
+                                        </div>
+                                        {{ sellform.date }}
+                                    </div>
+                                    <div class="input-group mr-4 mb-2">
+                                        <div class="input-group-prepend">
+                                          <span class="input-group-text">Product</span>
+                                        </div>
+                                        {{ sellform.products }}
+                                    </div>
+                                    <div class="input-group mr-4 mb-2">
+                                        <div class="input-group-prepend">
+                                          <span class="input-group-text">Stock</span>
+                                        </div>
+                                        {{ sellform.quantity }}
+                                    </div>
+                                    <div class="input-group mr-4 mb-2">
+                                        <button class="btn btn-primary my-2 my-sm-0  w-100" type="submit">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Row -->
+                <div class="row">
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2 ml-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Total Sold (8 inch)</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{a_sold}}</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2 ml-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Available (8 inch)</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{a_main_stock}}</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2 ml-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            Total Sold (9 inch)</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{b_sold}}</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2 ml-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            Available (9 inch)</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{b_main_stock}}</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <!-- Area Chart -->
+                    <div class="col-xl-6 col-lg-6">
+                        <div class="card shadow mb-4">
+                            <!-- Card Header - Dropdown -->
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Brick (8 inch)</h6>
+                                <div class="dropdown no-arrow">
+                                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                                        <div class="dropdown-header">Options:</div>
+                                        <button class="btn" onclick="exportTableToExcel('sell_table_a')">Export to Excel</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <div class="chart-area"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+                                <table class="table" id="sell_table_a" style="border-collapse: separate;font-size:min(2.5vw,0.9rem)">
+                                    <thead class="table-light">
+                                      <tr>
+                                        <th rowspan="1" colspan="1">Date</th>
+                                        <th rowspan="1" colspan="1">Sold</th>
+                                        <th rowspan="1" colspan="1">Actions</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {% for log in sold %}
+                                      {% if log.product.id == 1%}
+                                      <tr class="odd">
+                                        <td class="sorting_1">{{log.date}}</td>
+                                        <td>{{log.quantity}}</td>
+                                        <td>
+                                          <div class="d-flex align-items-center">
+                                            <a class="btn btn-danger mx-2 py-0 text-white" style="font-size:min(2.5vw,0.9rem)" onclick="confirmsellDelete('{{ log.id }}')">Delete</a>
+                                          </div>
+                                        </td>
+                                      </tr>
+                                      {% endif %}
+                                      {% endfor %}
+                                    </tbody>
+                                  </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-6 col-lg-6">
+                        <div class="card shadow mb-4">
+                            <!-- Card Header - Dropdown -->
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-success">Brick (9 inch)</h6>
+                                <div class="dropdown no-arrow">
+                                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                                        <div class="dropdown-header">Options:</div>
+                                        <button class="btn" onclick="exportTableToExcel('sell_table_b')">Export to Excel</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <div class="chart-area"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+                                <table class="table" id="sell_table_b" style="border-collapse: separate;font-size:min(2.5vw,0.9rem)">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th rowspan="1" colspan="1">Date</th>
+                                            <th rowspan="1" colspan="1">Sold</th>
+                                            <th rowspan="1" colspan="1">Actions</th>
+                                        </tr>
+                                      </thead>
+                                    <tbody>
+                                        {% for log in sold %}
+                                        {% if log.product.id == 8 %}
+                                        <tr class="odd">
+                                          <td class="sorting_1">{{log.date}}</td>
+                                          <td>{{log.quantity}}</td>
+                                          <td>
+                                            <div class="d-flex align-items-center">
+                                                <a class="btn btn-danger mx-2 py-0 text-white" style="font-size:min(2.5vw,0.9rem)" onclick="confirmsellDelete('{{ log.id }}')">Delete</a>
                                             </div>
                                           </td>
                                         </tr>
@@ -276,12 +488,32 @@
   {% endblock content %}
 
   {% block jsfiles %}
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    var j = jQuery.noConflict();
+</script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script>
+    j(document).ready(function () {
+        j('#table_a').DataTable();
+        j('#table_b').DataTable();
+        j('#sell_table_a').DataTable();
+        j('#sell_table_b').DataTable();
+    });
+</script>
+
   <script>
     $(document).ready(function(){
-        $("#id_date").datepicker({
+        $("#id_stock-date").datepicker({
             dateFormat: 'dd/mm/yy',
         });
-        $("#id_date").datepicker('setDate', new Date());
+        $("#id_stock-date").datepicker('setDate', new Date());
+        $("#id_sell_stock-date").datepicker({
+            dateFormat: 'dd/mm/yy',
+        });
+        $("#id_sell_stock-date").datepicker('setDate', new Date());
     });
     function confirmDelete(itemId) {
         if (confirm("Are you sure you want to delete this item?")) {
@@ -291,31 +523,74 @@
             // If the user cancels, do nothing
         }
     }
+    function confirmsellDelete(itemId) {
+        if (confirm("Are you sure you want to delete this item?")) {
+            // If the user confirms the deletion, redirect to the delete URL
+            window.location.href = "{% url 'sell_stock_item_delete' pk=0 %}".replace('0', itemId);
+        } else {
+            // If the user cancels, do nothing
+        }
+    }
 
     refresh();
   function refresh(){
-    var selectElements = document.getElementsByName("products");
+    var selectElements = document.getElementsByName("stock-products");
     for (var i = 0; i < selectElements.length; i++) {
       var selectElement = selectElements[i];
       selectElement.removeAttribute("multiple");
       selectElement.classList.add("custom-select");
     }
-    var inputelements = document.getElementsByTagName("input");
+    var selectElements = document.getElementsByName("sell_stock-products");
+    for (var i = 0; i < selectElements.length; i++) {
+      var selectElement = selectElements[i];
+      selectElement.removeAttribute("multiple");
+      selectElement.classList.add("custom-select");
+    }
+    var myDiv = document.getElementById("Add_stock_form");
+    var inputelements = myDiv.getElementsByTagName("input");
+    for (var i = 0; i < inputelements.length; i++) {
+      var selectElement = inputelements[i];
+      selectElement.classList.add("form-control");
+    }
+    var myDiv = document.getElementById("Sell_stock_form");
+    var inputelements = myDiv.getElementsByTagName("input");
     for (var i = 0; i < inputelements.length; i++) {
       var selectElement = inputelements[i];
       selectElement.classList.add("form-control");
     }
   }
-  document.addEventListener('keydown', refresh);
-	document.addEventListener('keyup', refresh);
+    document.addEventListener('keydown', refresh);
+    document.addEventListener('keyup', refresh);
 	document.addEventListener('mousewheel', refresh);
 	document.addEventListener('click', refresh);
-$(document).keypress(
-  function(event){
-    if (event.which == '13') {
-      event.preventDefault();
+
+    function exportTableToExcel(name) {
+        // Get your table element
+        var table = document.getElementById(name);
+    
+        // Create an empty array to store data
+        var data = [];
+    
+        // Iterate through table rows and cells to gather data
+        for (var i = 0; i < table.rows.length; i++) {
+            var rowData = [];
+            for (var j = 0; j < table.rows[i].cells.length-1; j++) {
+                rowData.push(table.rows[i].cells[j].innerText);
+            }
+            data.push(rowData);
+        }
+    
+        // Create a new workbook and add a worksheet
+        var workbook = XLSX.utils.book_new();
+        var worksheet = XLSX.utils.aoa_to_sheet(data);
+    
+        // Add the worksheet to the workbook
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+    
+        // Save the workbook as an Excel file
+        XLSX.writeFile(workbook, "stock_data.xlsx");
     }
-});
+
 {% comment %} 
   $('button[name="submit_invoice"]').on('click', function(e) {
     var $form = $(this).closest('form');

@@ -6,10 +6,10 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
-from .forms import NewProductForm,InvoiceForm,InvoiceItemForm,StockForm
 from django.views.generic import ListView, UpdateView, DeleteView
 from django.views.decorators.http import require_POST
-from .models import Product,invoice,InvoiceItem,Stock
+from .models import Product,invoice,InvoiceItem,Stock,SellStock
+from .forms import NewProductForm,InvoiceForm,InvoiceItemForm,StockForm,SellStockForm
 from users.models import Profile
 from django.db.models import Sum
 from django.utils import timezone
@@ -239,21 +239,27 @@ class dashboard(ListView):
     model = Stock
     template_name = 'feed/dashboard.html'
     context_object_name = 'posts'
-    paginate_by = 10
-    ordering = ['id']
+    ordering = ['-date']
     def get_context_data(self, **kwargs):
         context = super(dashboard, self).get_context_data(**kwargs)
-        context['form'] = StockForm()
+        context['form'] = StockForm(prefix='stock')
+        context['sellform'] = SellStockForm(prefix='sell_stock')
+        context['sold'] = SellStock.objects.all()
         
         a_total_quantity = Stock.objects.filter(product_id=1).aggregate(total_quantity=Sum('quantity'))['total_quantity']
         a_transfered = Stock.objects.filter(product_id=1).aggregate(transfered=Sum('transfer'))['transfered']
+        a_sold = SellStock.objects.filter(product_id=1).aggregate(sold=Sum('quantity'))['sold']
         b_total_quantity = Stock.objects.filter(product_id=8).aggregate(total_quantity=Sum('quantity'))['total_quantity']
         b_transfered = Stock.objects.filter(product_id=8).aggregate(transfered=Sum('transfer'))['transfered']
+        b_sold = SellStock.objects.filter(product_id=8).aggregate(sold=Sum('quantity'))['sold']
         if(a_total_quantity==None):
             a_total_quantity=0
         
         if(a_transfered==None):
             a_transfered=0
+        
+        if(a_sold==None):
+            a_sold=0
         
         if(b_total_quantity==None):
             b_total_quantity=0
@@ -261,10 +267,16 @@ class dashboard(ListView):
         if(b_transfered==None):
             b_transfered=0
         
+        if(b_sold==None):
+            b_sold=0
+        
         context['a_ground_stock'] = a_total_quantity-a_transfered
-        context['a_main_stock'] = a_transfered
+        context['a_main_stock'] = a_transfered - a_sold
         context['b_ground_stock'] = b_total_quantity-b_transfered
-        context['b_main_stock'] = b_transfered
+        context['b_main_stock'] = b_transfered - b_sold
+
+        context['a_sold'] = a_sold
+        context['b_sold'] = b_sold
 
         return context
 
@@ -273,12 +285,12 @@ def newStockItem(request):
     if request.user.is_authenticated:
         user = request.user
         if request.method == "POST":
-            form = StockForm(request.POST, request.FILES)
+            form = StockForm(request.POST, prefix='stock')
             if form.is_valid():
                 date = form.cleaned_data['date']
                 quantity = form.cleaned_data['quantity']
                 transfer = form.cleaned_data['transfer']
-                product_names = request.POST.getlist('products')
+                product_names = request.POST.getlist('stock-products')
                 all_prod = Product.objects.all()
                 for product_name in product_names:
                     product = get_object_or_404(Product, pk=int(product_name))
@@ -301,8 +313,45 @@ def newStockItem(request):
     return redirect('dashboard')
 
 @login_required
+def newSellStockItem(request):
+    if request.user.is_authenticated:
+        user = request.user
+        if request.method == "POST":
+            form = SellStockForm(request.POST, prefix='sell_stock')
+            if form.is_valid():
+                date = form.cleaned_data['date']
+                quantity = form.cleaned_data['quantity']
+                product_names = request.POST.getlist('sell_stock-products')
+                all_prod = Product.objects.all()
+                for product_name in product_names:
+                    product = get_object_or_404(Product, pk=int(product_name))
+                    stocks_list = SellStock.objects.filter(date__icontains=date, product=product)
+                    if stocks_list.exists():
+                        stock = stocks_list[0]
+                        stock.quantity += quantity
+                        stock.save()
+                        return redirect('dashboard')
+                    stock_obj = SellStock.objects.create(date=date, product=product, quantity=quantity)
+                    stock_obj.save()
+                messages.success(request, f'Sell Posted Successfully')
+                return redirect('dashboard')
+            
+        else:
+            form = SellStockForm()
+    else:
+        return redirect('dashboard')
+    return redirect('dashboard')
+
+@login_required
 def stock_item_delete(request, pk):
     item = Stock.objects.get(pk=pk)
+    if request.user.is_authenticated:
+        item.delete()
+    return redirect('dashboard')
+
+@login_required
+def sell_stock_item_delete(request, pk):
+    item = SellStock.objects.get(pk=pk)
     if request.user.is_authenticated:
         item.delete()
     return redirect('dashboard')

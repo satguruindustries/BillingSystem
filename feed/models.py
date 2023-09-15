@@ -65,3 +65,11 @@ class Stock(models.Model):
 
     def __str__(self):
         return self.product.name + " - " + self.date
+
+class SellStock(models.Model):
+    date = models.CharField(max_length=255, blank=False)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.IntegerField()
+
+    def __str__(self):
+        return self.product.name + " - " + self.date
