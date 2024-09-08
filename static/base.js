@@ -1,4 +1,20 @@
-/* Shivving (IE8 is not supported, but at least it won't look as awful)
+
+// Function to format the date to 'dd/mmm/yyyy'
+function formatDate(date) {
+    const day = String(date.getDate()).padStart(2, '0'); // Get the day and add a leading zero if needed
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const month = monthNames[date.getMonth()]; // Get the abbreviated month name
+    const year = date.getFullYear(); // Get the 4-digit year
+
+    return `${day}/${month}/${year}`;
+}
+
+// Function to format time to 'H:M:S PM'
+function formatTime(date) {
+    return date.toLocaleTimeString('en-US', { hour12: true }); // Format the time to 12-hour format with AM/PM
+}
+
+/* Base functions
 /* ========================================================================== */
 
 (function (document) {
@@ -166,7 +182,7 @@ function convertAmountToWords(amount) {
 
 function updateInvoice() {
 	var currentDate = new Date();
-	var formattedDate = currentDate.toLocaleDateString() + " (" + currentDate.toLocaleTimeString() + ")";
+	var formattedDate = formatDate(currentDate) + " (" + formatTime(currentDate) + ")";
 	// Update the value of the element with id "id_date"
 	if(document.getElementById("id_date")) document.getElementById("id_date").value = formattedDate;
 
@@ -246,7 +262,7 @@ function updateInvoice() {
 function onContentLoad() {
 	updateInvoice();
 	var currentDate = new Date();
-	var formattedDate = currentDate.toLocaleDateString() + " (" + currentDate.toLocaleTimeString() + ")";
+	var formattedDate = formatDate(currentDate) + " (" + formatTime(currentDate) + ")";
 	// Update the value of the element with id "id_date"
 	document.getElementById("id_date").value = formattedDate;
 
