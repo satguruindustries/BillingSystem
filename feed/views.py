@@ -165,7 +165,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             invoice_obj = self.object
             # Loop through the product details and create InvoiceItem objects
             for product_name, quantity, total, rate in zip(product_names, quantities, totals, rates):
-                product = all_prod[int(product_name)-1]
+                product = Product.objects.get(id=product_name)
                 InvoiceItem.objects.create(invoice=invoice_obj, product=product, rate=rate, quantity=quantity, total=total)
 
             # Calculate the grand total and save it in the invoice
