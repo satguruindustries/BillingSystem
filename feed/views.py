@@ -426,7 +426,8 @@ def save_invoice(request):
             all_prod = Product.objects.all()
             # Loop through the product details and create InvoiceItem objects
             for product_name, quantity, total, rate in zip(product_names, quantities, totals, rates):
-                product = all_prod[int(product_name)-1]
+                product_id = int(product_name)
+                product = Product.objects.get(id=product_id)
                 InvoiceItem.objects.create(invoice=invoice_obj, product=product, quantity=quantity, rate=rate, total=total)
 
             # Calculate the grand total and save it in the invoice
